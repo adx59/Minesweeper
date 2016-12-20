@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-###Minesweeper 0.8###
+###Minesweeper 1.0###
 
 """A clone of Microsoft's Minesweeper. Now in Python Edition. It is recommended that this game is run on a PC with
 minimum requirements of a Intel Core i7 6400k, and a NVIDIA EVGA GeForce GTX 1080Ti, with 64 GB of DDR4 RAM, and finally
