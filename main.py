@@ -4,12 +4,12 @@
 
 """A clone of Microsoft's Minesweeper. Now in Python Edition. It is recommended that this game is run on a PC with
 minimum requirements of a Intel Core i7 6400k, and a NVIDIA EVGA GeForce GTX 1080Ti, with 64 GB of DDR4 RAM, and finally
-a 1 GB/s read&write speed SSD. If these requirements are not met, this program will shoot your computer with a BSOD.
+a 1 GB/s read&write speed SSD. If these requirements are not met, this program will shoot your computer with a BSOD(Blue Screen of Death).
 Just kidding. But the grid might take a few seconds to load."""
 
 __author__    = 'AZX'
 __maintainer__ = 'AZX'
-__status__   = 'Development-Production'
+__status__   = 'Development-Production(can still be played, but needs cosmetic changes).'
 
 from tkinter import *
 from tkinter import messagebox
@@ -19,7 +19,12 @@ import sys
 
 class mineCell(Button):
     def __init__(self, master, x, y, bomb):
+        '''an object representing a cell in Minesweeper
+            === methods ===
+            show() -> exposes self
+            markAsBomb() -> marks itself as a bomb'''
         Button.__init__(self, master, width = 2, height = 1, text= '', bg ='white', relief = 'raised', command = self.show)
+        self.colorDict = {'bomb':'red', '':'light gray', '1':'blue', '2':'darkgreen', '3':'red', '4':'purple', '5':'maroon', '6':'cyan', '7':'black', '8':'gray'}
         self.grid(row = x, column = y)
         self.hidden = True
         self.bomb = bomb
@@ -29,8 +34,12 @@ class mineCell(Button):
         self.marked = False
         self.bind('<Button-3>', self.markAsBomb)
 
-    def show(self, noErrMsg = False):
+    def show(self, noLoseMechanism = False):
+        '''a method of the mineCell class that exposes the cell
+            if the cell is a bomb, creates a err message and
+            exits process'''
         self.numOfBombsVal = str(self.master.findBombs(self.coords))
+        self['fg'] = self.colorDict[self.numOfBombsVal]
         if not self.shown:
             if self.numOfBombsVal == '':
                 self['relief'] = 'sunken'
@@ -41,7 +50,7 @@ class mineCell(Button):
             if self.bomb:
                 self['bg'] = 'red'
                 self['relief'] = 'sunken'
-                if not noErrMsg:
+                if not noLoseMechanism:
                     messagebox.showerror('Minesweeper', 'KABOOM! You lose.', parent=self)
                     self.master.showAllBombs()
                 self.shown = True
@@ -50,14 +59,14 @@ class mineCell(Button):
                 self['bg'] = 'light gray'
                 self['text'] = str(self.numOfBombsVal)
                 self.shown = True
-                print(self.coords)
-                print(self.shown)
-                print(self.bomb)
         else:
             pass
 
     def markAsBomb(self, bind):
-
+        '''marks the cell as a bomb
+            triggered when the cell
+            is right clicked
+            changes the cell to a yellow color and makes the text an asterisk'''
         if not self.shown:
             self.marked = True
             self['bg'] = 'yellow'
@@ -78,6 +87,14 @@ class mineCell(Button):
 
 class mineGrid(Frame):
     def __init__(self, master, xl, yl, amntBombs):
+        '''A grid of mineCells is generated with nested for loops
+            bombs are picked as a random coord and placed into a list
+            mineCells are put in a dictionary with coords as keys
+            === methods ===
+            findBombs() -> finds the amount of bombs adjacent to a coordinate
+            autoExpose() -> automatically exposes the cells surrounding an empty cell
+            showAllBombs() -> shows all the bombs in the grid
+            '''
         Frame.__init__(self, master)
         self.grid()
         self.width = xl
@@ -94,7 +111,7 @@ class mineGrid(Frame):
                 randPosX = random.randrange(xl)
                 randPosY = random.randrange(yl)
             self.bombPosLi.append((randPosX, randPosY))
-        print(self.bombPosLi)
+ 
         for x in range(xl):
             for y in range(yl):
                 if (x, y) in self.bombPosLi:
@@ -108,6 +125,9 @@ class mineGrid(Frame):
 
 
     def findBombs(self, coords):
+        '''finds the bombs in the region surrounding a cell
+            used to find the number to label a exposed cell
+            findBombs(coords) -> amnt of surrounding bombs'''
         x = coords[0]
         y = coords[1]
         numBombs = 0
@@ -125,6 +145,10 @@ class mineGrid(Frame):
             return numBombs
 
     def autoExpose(self, coords):
+        '''automatically exposes the cells around a empty cell.
+            if the cells include another empty cell, recursion
+            takes care of that. 
+            autoExpose(coords) -> None'''
         x = coords[0]
         y = coords[1]
         adjCellCoords = [(x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1), (x - 1, y - 1), (x + 1, y + 1), (x - 1, y + 1), (x + 1, y - 1)]
@@ -136,10 +160,7 @@ class mineGrid(Frame):
             else:
                 adjCellCoords.remove(coords)
 
-        print('======Coords======')
-        print((x,y))
-        print(adjCellCoords)
-        print('==================')
+
         for coords in adjCellCoords:
             tempCell = self.cells.get(coords)
             if isinstance(tempCell, mineCell):
@@ -150,6 +171,9 @@ class mineGrid(Frame):
             self.cells[coords] = tempCell
 
     def showAllBombs(self):
+        '''shows all the bombs in the grid
+            simply uses show function
+            showAllBombs -> None'''
         for coords in self.bombPosLi:
             self.cells.get(coords).show(True)
 
@@ -157,12 +181,13 @@ class mineGrid(Frame):
 
 def playMinesweeper(length, width, bombs):
     root = Tk()
+    root.title('Minesweeper(Python)')
     grid = mineGrid(root, length, width, bombs)
     #label for bombs
     grid.mainloop()
 
 
-playMinesweeper(24,24,99)     #classic ol' minesweeper 24x24 w/ 99 bombs i can't win that can you?
+playMinesweeper(10,10,5)     #classic ol' minesweeper 24x24 w/ 99 bombs i can't win that can you?
 
 
 
