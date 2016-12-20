@@ -182,12 +182,13 @@ class mineGrid(Frame):
 def playMinesweeper(length, width, bombs):
     root = Tk()
     root.title('Minesweeper(Python)')
+    root.iconbitmap('favicon.ico')
     grid = mineGrid(root, length, width, bombs)
     #label for bombs
     grid.mainloop()
 
 
-playMinesweeper(10,10,5)     #classic ol' minesweeper 24x24 w/ 99 bombs i can't win that can you?
+playMinesweeper(24,24,99)     #classic ol' minesweeper 24x24 w/ 99 bombs i can't win that can you?
 
 
 
