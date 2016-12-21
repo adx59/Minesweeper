@@ -3,16 +3,17 @@
 ###Minesweeper 1.0###
 
 """A clone of Microsoft's Minesweeper. Now in Python Edition. It is recommended that this game is run on a PC with
-minimum requirements of a Intel Core i7 6400k, and a NVIDIA EVGA GeForce GTX 1080Ti, with 64 GB of DDR4 RAM, and finally
+minimum requirements of a Intel Core i7 6400k, and a NVIDIA EVGA GeForce GTX 1080, with 64 GB of DDR4 RAM, a 900W power supply, and finally
 a 1 GB/s read&write speed SSD. If these requirements are not met, this program will shoot your computer with a BSOD(Blue Screen of Death).
 Just kidding. But the grid might take a few seconds to load."""
 
 __author__    = 'AZX'
 __maintainer__ = 'AZX'
-__status__   = 'Development-Production(can still be played, but needs cosmetic changes).'
+__status__   = 'Production-ActiveDev(Has all features inplemented, but still in Active Dev).'
 
 from tkinter import *
 from tkinter import messagebox
+import os
 import random
 import sys
 
@@ -34,12 +35,13 @@ class mineCell(Button):
         self.marked = False
         self.bind('<Button-3>', self.markAsBomb)
 
-    def show(self, noLoseMechanism = False):
+    def show(self, showBombs = False):
         '''a method of the mineCell class that exposes the cell
             if the cell is a bomb, creates a err message and
             exits process'''
         self.numOfBombsVal = str(self.master.findBombs(self.coords))
-        self['fg'] = self.colorDict[self.numOfBombsVal]
+        if not self.marked:
+            self['fg'] = self.colorDict[self.numOfBombsVal]
         if not self.shown:
             if self.numOfBombsVal == '':
                 self['relief'] = 'sunken'
@@ -48,12 +50,14 @@ class mineCell(Button):
                 self.shown = True
                 self.master.autoExpose(self.coords)
             if self.bomb:
-                self['bg'] = 'red'
-                self['relief'] = 'sunken'
-                if not noLoseMechanism:
-                    messagebox.showerror('Minesweeper', 'KABOOM! You lose.', parent=self)
-                    self.master.showAllBombs()
-                self.shown = True
+                if showBombs == True:
+                        self['bg'] = 'red'
+                        self['relief'] = 'sunken'   
+                else:
+                    self['bg'] = 'red'
+                    self['relief'] = 'sunken'
+                    self.master.lose()
+                    self.shown = True
             else:
                 self['relief'] = 'sunken'
                 self['bg'] = 'light gray'
@@ -76,12 +80,9 @@ class mineCell(Button):
                 self.master.amntBombs -= 1
                 self.master.amntBombsTKvar.set(self.master.amntBombs)
             else:
-                messagebox.showerror('Minesweeper', 'That cell wasn\'t a bomb.', parent=self)
-                sys.exit()
+                self.master.lose('markedNonBomb')
             if self.master.amntBombs == 0:
-                messagebox.showinfo('Minesweeper', 'Congratulations -- you won!', parent=self)
-                messagebox.showinfo('Minesweeper', 'Now you can pick up your prize at 37.263832, -122.023015!')
-                sys.exit()
+                self.master.win()     #function possibly obsolete
 
 
 
@@ -136,7 +137,7 @@ class mineGrid(Frame):
             if (cell[0],cell[1]) in self.bombPosLi:
                 numBombs += 1
             else:
-                 continue
+                continue
         if coords in self.bombPosLi:
             return 'bomb'
         if numBombs == 0:
@@ -176,6 +177,22 @@ class mineGrid(Frame):
             showAllBombs -> None'''
         for coords in self.bombPosLi:
             self.cells.get(coords).show(True)
+            
+    def lose(self, type = 'openedBomb'):
+        if type == 'openedBomb':
+            self['bg'] = 'red'
+            self['relief'] = 'sunken'            
+            messagebox.showerror('Minesweeper', 'KABOOM! You lose.', parent=self)
+            self.showAllBombs()
+        elif type == 'markedNonBomb':
+            messagebox.showerror('Minesweeper', 'That cell wasn\'t a bomb! You lose!', parent=self)
+            
+    def win(self):
+        messagebox.showinfo('Minesweeper', 'Congratulations -- you won!', parent=self)
+        messagebox.showinfo('Minesweeper', 'Haha, no. You don\'t need any congratulations. You probably made a custom size and bomb amount, and made it really easy.', parent=self)
+        sys.exit()        
+        
+            
 
 
 
@@ -186,9 +203,28 @@ def playMinesweeper(length, width, bombs):
     grid = mineGrid(root, length, width, bombs)
     #label for bombs
     grid.mainloop()
-
-
-playMinesweeper(24,24,99)     #classic ol' minesweeper 24x24 w/ 99 bombs i can't win that can you?
+    
+    
+if os.path.isfile('configGrid.in'):
+    configFile = open('configGrid.in', 'r')
+    lineNum = 1
+    xlen, ylen, amntBombs = 0, 0, 0
+    for line in configFile:
+        if lineNum == 1:
+            xlen = int(line)
+        elif lineNum == 2:
+            ylen = int(line)
+        elif lineNum == 3:
+            amntBombs = int(line)
+        elif lineNum == 4:
+            break
+        lineNum += 1
+    print(str(xlen) + ' ' + str(ylen) + ' ' + str(amntBombs))
+    
+    playMinesweeper(xlen, ylen, amntBombs)
+        
+else:    
+    playMinesweeper(10,10,5)     
 
 
 
