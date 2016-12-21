@@ -17,6 +17,7 @@ import os
 import random
 import sys
 
+loadConfig = False    #could change into a button to enable
 
 class mineCell(Button):
     def __init__(self, master, x, y, bomb):
@@ -186,26 +187,15 @@ class mineGrid(Frame):
             self.showAllBombs()
         elif type == 'markedNonBomb':
             messagebox.showerror('Minesweeper', 'That cell wasn\'t a bomb! You lose!', parent=self)
+            sys.exit()
             
     def win(self):
         messagebox.showinfo('Minesweeper', 'Congratulations -- you won!', parent=self)
         messagebox.showinfo('Minesweeper', 'Haha, no. You don\'t need any congratulations. You probably made a custom size and bomb amount, and made it really easy.', parent=self)
         sys.exit()        
         
-            
-
-
-
-def playMinesweeper(length, width, bombs):
-    root = Tk()
-    root.title('Minesweeper(Python)')
-    root.iconbitmap('favicon.ico')
-    grid = mineGrid(root, length, width, bombs)
-    #label for bombs
-    grid.mainloop()
-    
-    
-if os.path.isfile('configGrid.in'):
+def loadConfigFile():
+    if os.path.isfile('configGrid.in') and loadConfig:
     configFile = open('configGrid.in', 'r')
     lineNum = 1
     xlen, ylen, amntBombs = 0, 0, 0
@@ -219,12 +209,33 @@ if os.path.isfile('configGrid.in'):
         elif lineNum == 4:
             break
         lineNum += 1
-    print(str(xlen) + ' ' + str(ylen) + ' ' + str(amntBombs))
+    return (xlen, ylen, amntBombs)
+
+
+
+
+def playMinesweeper(length, width, amntBombs):
+    load = messagebox.askquestion('Minesweeper', 'Would you like to load the config file?')
+    if load == 'yes':
+        info = loadConfigFile()
+        root = Tk()
+        root.title('Minesweeper(Python)')
+        root.iconbitmap('favicon.ico')
+        grid = mineGrid(root, info[0], info[1], info[2])
+        grid.mainloop()
+    else:
+        root = Tk()
+        root.title('Minesweeper(Python)')
+        root.iconbitmap('favicon.ico')
+        grid = mineGrid(root, length, width, bombs)
+        #label for bombs
+        grid.mainloop()
     
-    playMinesweeper(xlen, ylen, amntBombs)
+
+
         
-else:    
-    playMinesweeper(10,10,5)     
+ 
+    
 
 
 
