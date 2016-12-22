@@ -1,2 +1,6 @@
-# Minesweeper-Python-Edition-
-A clone of Microsoft's Minesweeper, in Python. Still in development, but should be ready by 12/21/16.
+# MinesweeperPy
+A clone of Microsoft's Minesweeper, in Python. In active development, but still can be played. All the features have been implemented, but I might make more.
+
+author: Adam Xu(adx59)
+maintainer: Adam Xu(adx59)
+credits: Adam Xu

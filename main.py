@@ -9,7 +9,7 @@ Just kidding. But the grid might take a few seconds to load."""
 
 __author__    = 'AZX'
 __maintainer__ = 'AZX'
-__status__   = 'Production-ActiveDev(Has all features inplemented, but still in Active Dev).'
+__status__   = 'Production-ActiveDev(Has all features implemented, but still in Active Dev).'
 
 from tkinter import *
 from tkinter import messagebox
@@ -21,10 +21,10 @@ loadConfig = False    #could change into a button to enable
 
 class mineCell(Button):
     def __init__(self, master, x, y, bomb):
-        '''an object representing a cell in Minesweeper
+        """an object representing a cell in Minesweeper
             === methods ===
             show() -> exposes self
-            markAsBomb() -> marks itself as a bomb'''
+            markAsBomb() -> marks itself as a bomb"""
         Button.__init__(self, master, width = 2, height = 1, text= '', bg ='white', relief = 'raised', command = self.show)
         self.colorDict = {'bomb':'red', '':'light gray', '1':'blue', '2':'darkgreen', '3':'red', '4':'purple', '5':'maroon', '6':'cyan', '7':'black', '8':'gray'}
         self.grid(row = x, column = y)
@@ -37,9 +37,9 @@ class mineCell(Button):
         self.bind('<Button-3>', self.markAsBomb)
 
     def show(self, showBombs = False):
-        '''a method of the mineCell class that exposes the cell
+        """a method of the mineCell class that exposes the cell
             if the cell is a bomb, creates a err message and
-            exits process'''
+            exits process"""
         self.numOfBombsVal = str(self.master.findBombs(self.coords))
         if not self.marked:
             self['fg'] = self.colorDict[self.numOfBombsVal]
@@ -68,10 +68,10 @@ class mineCell(Button):
             pass
 
     def markAsBomb(self, bind):
-        '''marks the cell as a bomb
+        """marks the cell as a bomb
             triggered when the cell
             is right clicked
-            changes the cell to a yellow color and makes the text an asterisk'''
+            changes the cell to a yellow color and makes the text an asterisk"""
         if not self.shown:
             self.marked = True
             self['bg'] = 'yellow'
@@ -86,17 +86,16 @@ class mineCell(Button):
                 self.master.win()     #function possibly obsolete
 
 
-
 class mineGrid(Frame):
     def __init__(self, master, xl, yl, amntBombs):
-        '''A grid of mineCells is generated with nested for loops
+        """A grid of mineCells is generated with nested for loops
             bombs are picked as a random coord and placed into a list
             mineCells are put in a dictionary with coords as keys
             === methods ===
             findBombs() -> finds the amount of bombs adjacent to a coordinate
             autoExpose() -> automatically exposes the cells surrounding an empty cell
             showAllBombs() -> shows all the bombs in the grid
-            '''
+            """
         Frame.__init__(self, master)
         self.grid()
         self.width = xl
@@ -113,7 +112,6 @@ class mineGrid(Frame):
                 randPosX = random.randrange(xl)
                 randPosY = random.randrange(yl)
             self.bombPosLi.append((randPosX, randPosY))
- 
         for x in range(xl):
             for y in range(yl):
                 if (x, y) in self.bombPosLi:
@@ -127,9 +125,9 @@ class mineGrid(Frame):
 
 
     def findBombs(self, coords):
-        '''finds the bombs in the region surrounding a cell
+        """finds the bombs in the region surrounding a cell
             used to find the number to label a exposed cell
-            findBombs(coords) -> amnt of surrounding bombs'''
+            findBombs(coords) -> amnt of surrounding bombs"""
         x = coords[0]
         y = coords[1]
         numBombs = 0
@@ -147,10 +145,10 @@ class mineGrid(Frame):
             return numBombs
 
     def autoExpose(self, coords):
-        '''automatically exposes the cells around a empty cell.
+        """automatically exposes the cells around a empty cell.
             if the cells include another empty cell, recursion
             takes care of that. 
-            autoExpose(coords) -> None'''
+            autoExpose(coords) -> None"""
         x = coords[0]
         y = coords[1]
         adjCellCoords = [(x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1), (x - 1, y - 1), (x + 1, y + 1), (x - 1, y + 1), (x + 1, y - 1)]
@@ -173,9 +171,9 @@ class mineGrid(Frame):
             self.cells[coords] = tempCell
 
     def showAllBombs(self):
-        '''shows all the bombs in the grid
+        """shows all the bombs in the grid
             simply uses show function
-            showAllBombs -> None'''
+            showAllBombs -> None"""
         for coords in self.bombPosLi:
             self.cells.get(coords).show(True)
             
@@ -195,47 +193,46 @@ class mineGrid(Frame):
         sys.exit()        
         
 def loadConfigFile():
-    if os.path.isfile('configGrid.in') and loadConfig:
-    configFile = open('configGrid.in', 'r')
-    lineNum = 1
-    xlen, ylen, amntBombs = 0, 0, 0
-    for line in configFile:
-        if lineNum == 1:
-            xlen = int(line)
-        elif lineNum == 2:
-            ylen = int(line)
-        elif lineNum == 3:
-            amntBombs = int(line)
-        elif lineNum == 4:
-            break
-        lineNum += 1
-    return (xlen, ylen, amntBombs)
-
+    if os.path.isfile('configGrid.in'):
+        configFile = open('configGrid.in', 'r')
+        lineNum = 1
+        xlen, ylen, amntBombs = 0, 0, 0
+        for line in configFile:
+            if lineNum == 1:
+                xlen = int(line)
+            elif lineNum == 2:
+                ylen = int(line)
+            elif lineNum == 3:
+                amntBombs = int(line)
+            elif lineNum == 4:
+                break
+            lineNum += 1
+        return (xlen, ylen, amntBombs)
+    else:
+        messagebox.showerror('The file \'configGrid.in\' was not found. Please create this file, and put values in.')
+        sys.exit()
 
 
 
 def playMinesweeper(length, width, amntBombs):
+    """plays minesweeper
+        creates a grid and customizes the window
+        the icon was proudly made by me"""
+    info = loadConfigFile()
+    root = Tk()
+    root.title('Minesweeper')
+    root.iconbitmap('favicon.ico')
     load = messagebox.askquestion('Minesweeper', 'Would you like to load the config file?')
     if load == 'yes':
-        info = loadConfigFile()
-        root = Tk()
-        root.title('Minesweeper(Python)')
-        root.iconbitmap('favicon.ico')
         grid = mineGrid(root, info[0], info[1], info[2])
-        grid.mainloop()
+        grid.grid()
+        root.mainloop()
     else:
-        root = Tk()
-        root.title('Minesweeper(Python)')
-        root.iconbitmap('favicon.ico')
-        grid = mineGrid(root, length, width, bombs)
-        #label for bombs
-        grid.mainloop()
+        grid = mineGrid(root, length, width, amntBombs)
+        grid.grid()
+        root.mainloop()
     
 
-
-        
- 
+playMinesweeper(24,24,99)     #default size, but can be set in the configGrid.in file
     
-
-
 
