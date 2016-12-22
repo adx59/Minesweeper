@@ -16,8 +16,8 @@ from tkinter import messagebox
 import os
 import random
 import sys
+import time
 
-loadConfig = False    #could change into a button to enable
 
 class mineCell(Button):
     def __init__(self, master, x, y, bomb):
@@ -52,13 +52,15 @@ class mineCell(Button):
                 self.master.autoExpose(self.coords)
             if self.bomb:
                 if showBombs == True:
-                        self['bg'] = 'red'
-                        self['relief'] = 'sunken'   
+                    self['bg'] = 'red'
+                    self['relief'] = 'sunken'
+                    self.shown = True
                 else:
                     self['bg'] = 'red'
                     self['relief'] = 'sunken'
-                    self.master.lose()
                     self.shown = True
+                    self.master.lose()
+
             else:
                 self['relief'] = 'sunken'
                 self['bg'] = 'light gray'
@@ -176,6 +178,7 @@ class mineGrid(Frame):
             showAllBombs -> None"""
         for coords in self.bombPosLi:
             self.cells.get(coords).show(True)
+
             
     def lose(self, type = 'openedBomb'):
         if type == 'openedBomb':
@@ -235,4 +238,3 @@ def playMinesweeper(length, width, amntBombs):
 
 playMinesweeper(24,24,99)     #default size, but can be set in the configGrid.in file
     
-
