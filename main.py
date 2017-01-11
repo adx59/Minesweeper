@@ -9,14 +9,13 @@ Just kidding. But the grid might take a few seconds to load."""
 
 __author__    = 'AZX'
 __maintainer__ = 'AZX'
-__status__   = 'Production-ActiveDev(Has all features implemented, but still in Active Dev).'
+__status__   = 'Finished'
 
 from tkinter import *
 from tkinter import messagebox
 import os
 import random
 import sys
-import time
 
 
 class mineCell(Button):
@@ -25,7 +24,9 @@ class mineCell(Button):
             === methods ===
             show() -> exposes self
             markAsBomb() -> marks itself as a bomb"""
+        #init button
         Button.__init__(self, master, width = 2, height = 1, text= '', bg ='white', relief = 'raised', command = self.show)
+        #create attributes
         self.colorDict = {'bomb':'red', '':'light gray', '1':'blue', '2':'darkgreen', '3':'red', '4':'purple', '5':'maroon', '6':'cyan', '7':'black', '8':'gray'}
         self.grid(row = x, column = y)
         self.hidden = True
@@ -34,58 +35,95 @@ class mineCell(Button):
         self.numOfBombsVal = self.master.findBombs(self.coords)
         self.shown = False
         self.marked = False
+        #create binds
         self.bind('<Button-3>', self.markAsBomb)
+        self.bind('<Button-1>', self.exitWhenLost)
 
     def show(self, showBombs = False):
         """a method of the mineCell class that exposes the cell
             if the cell is a bomb, creates a err message and
             exits process"""
         self.numOfBombsVal = str(self.master.findBombs(self.coords))
+        #if it isn't marked with a bomb marker
         if not self.marked:
-            self['fg'] = self.colorDict[self.numOfBombsVal]
+            self['fg'] = self.colorDict[self.numOfBombsVal]     #set the text color to the number of bombs key value in the colorDict
+        #if it's not already shown
         if not self.shown:
+            #if there are no bombs around it
             if self.numOfBombsVal == '':
+                #cosmetic stuff
                 self['relief'] = 'sunken'
                 self['bg'] = 'light gray'
                 self['text'] = str(self.numOfBombsVal)
+                #make itself shown so there's no recursive loop
                 self.shown = True
+                #call on the autoExpose func
                 self.master.autoExpose(self.coords)
+            # if it's a bomb
             if self.bomb:
+                #if the game's already ended and this is for the showAllBombs func
                 if showBombs == True:
+                    #cosmetic stuff only
                     self['bg'] = 'red'
                     self['relief'] = 'sunken'
                     self.shown = True
+                #if the game is still going on
                 else:
+                    #cosmetics
                     self['bg'] = 'red'
                     self['relief'] = 'sunken'
                     self.shown = True
+                    #lose the game
                     self.master.lose()
 
             else:
+                #if it's not a bomb and we're just showing the number
+                #cosmetic
                 self['relief'] = 'sunken'
                 self['bg'] = 'light gray'
                 self['text'] = str(self.numOfBombsVal)
+                #make itself shown
                 self.shown = True
         else:
+            #if it's already shown, just do nothing - pass
             pass
+            
 
     def markAsBomb(self, bind):
         """marks the cell as a bomb
             triggered when the cell
             is right clicked
             changes the cell to a yellow color and makes the text an asterisk"""
+        # if it's not shown
         if not self.shown:
+            #change the marked attribute to true
             self.marked = True
+            #cosmetics
             self['bg'] = 'yellow'
             self['text'] = '*'
+            #change attribute shown
             self.shown = True
+            #if it is a bomb
             if self.bomb:
+                #subtract the amnt of bombs by 1
                 self.master.amntBombs -= 1
+                #make the tk variable for the label 1 less
                 self.master.amntBombsTKvar.set(self.master.amntBombs)
             else:
+                #lose(marked a not bomb)
                 self.master.lose('markedNonBomb')
             if self.master.amntBombs == 0:
-                self.master.win()     #function possibly obsolete
+                #if we discover that they have 0 bombs now- marked em all
+                #win
+                self.master.win()     
+                
+    def exitWhenLost(self, bind):
+        """Makes sure that the player isn't trying to click when they've already lost
+            mineCell.exitWhenLost() -> None"""
+        # if they've already lost but tried clicking on a cell
+        if self.master.lost == True:     
+            #exit
+            sys.exit()
 
 
 class mineGrid(Frame):
@@ -98,15 +136,18 @@ class mineGrid(Frame):
             autoExpose() -> automatically exposes the cells surrounding an empty cell
             showAllBombs() -> shows all the bombs in the grid
             """
+        #init frame
         Frame.__init__(self, master)
         self.grid()
+        #set attributes
         self.width = xl
-        self.height = yl   #purely for reference for the mineLabel Object
+        self.height = yl
+        self.lost = False
         self.amntBombs = amntBombs
-        self.amntBombsTKvar = IntVar()
+        self.amntBombsTKvar = IntVar()    #label variable
         self.amntBombsTKvar.set(self.amntBombs)
-        self.cells = {}
-        self.bombPosLi = []
+        self.cells = {}   # cells dictionary key is coords
+        self.bombPosLi = []    # bomb position list
         for a in range(amntBombs):
             randPosX = random.randrange(xl)
             randPosY = random.randrange(yl)
@@ -189,6 +230,7 @@ class mineGrid(Frame):
         elif type == 'markedNonBomb':
             messagebox.showerror('Minesweeper', 'That cell wasn\'t a bomb! You lose!', parent=self)
             sys.exit()
+        self.lost = True
             
     def win(self):
         messagebox.showinfo('Minesweeper', 'Congratulations -- you won!', parent=self)
@@ -196,6 +238,7 @@ class mineGrid(Frame):
         sys.exit()        
         
 def loadConfigFile():
+    """"""
     if os.path.isfile('configGrid.in'):
         configFile = open('configGrid.in', 'r')
         lineNum = 1
