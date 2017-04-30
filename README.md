@@ -1,2 +1,2 @@
 # MinesweeperPy
-I don't think I don't need to explain anything.
+I don't think I need to explain anything.
