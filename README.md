@@ -1,2 +1,3 @@
 # MinesweeperPy
-I don't think I need to explain anything.
+God, this project is old.  
+I think I made this shortly after learning how to use tkinter, so don't expect much.  
